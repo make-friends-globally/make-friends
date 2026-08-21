@@ -1,0 +1,78 @@
+---
+// Relationship graph (PRD FR-05, Protocol-SPEC §4.3).
+// Zero-dependency SVG: nodes on a circle, edges = friendships from links.json.
+import Layout from "../layouts/Layout.astro";
+import { links } from "../lib/data.js";
+
+const edges = links.links || [];
+const nodes = [...new Set(edges.flatMap((e) => [e.a, e.b]))].sort();
+const CX = 400;
+const CY = 300;
+const R = 230;
+const positions = new Map();
+nodes.forEach((u, i) => {
+  const angle = (2 * Math.PI * i) / nodes.length - Math.PI / 2;
+  positions.set(u, { x: CX + R * Math.cos(angle), y: CY + R * Math.sin(angle) });
+});
+---
+
+<Layout title="Friendship graph / 关系图 — make-friends">
+  <div class="container graph-wrap">
+    <h1>Friendship graph / 关系图</h1>
+    <p style="color:var(--text-dim);font-size:14px">
+      Each edge is a friendship confirmed by both sides in a <code>[ping]</code> issue.
+      每条边都是一段由双方在 <code>[ping]</code> issue 中确认的友谊。
+    </p>
+
+    {edges.length > 0 ? (
+      <>
+        <svg viewBox="0 0 800 600" role="img" aria-label="Friendship graph">
+          {edges.map((e) => {
+            const p = positions.get(e.a);
+            const q = positions.get(e.b);
+            return (
+              <line
+                x1={p.x} y1={p.y} x2={q.x} y2={q.y}
+                stroke="#3b82f6" stroke-opacity="0.6" stroke-width="2"
+              />
+            );
+          })}
+          {nodes.map((u) => {
+            const p = positions.get(u);
+            return (
+              <g key={u}>
+                <circle cx={p.x} cy={p.y} r="16" fill="#1e293b" stroke="#3b82f6" stroke-width="2" />
+                <a href={`/make-friends/members/${u}/`}>
+                  <text
+                    x={p.x} y={p.y + 4} text-anchor="middle"
+                    fill="#e2e8f0" font-size="11" font-weight="600"
+                  >{u}</text>
+                </a>
+              </g>
+            );
+          })}
+        </svg>
+
+        <div class="link-list">
+          <h2 style="font-size:18px">{edges.length} friendships / 段友谊</h2>
+          <ul>
+            {edges.map((e) => (
+              <li>
+                <a href={`/make-friends/members/${e.a}/`}>@{e.a}</a>
+                {" "}×{" "}
+                <a href={`/make-friends/members/${e.b}/`}>@{e.b}</a>
+                {" "}· merged on {e.createdAt.slice(0, 10)} ·{" "}
+                <a href={e.issueUrl}>issue #{e.issueUrl.split("/").pop()}</a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </>
+    ) : (
+      <div class="empty">
+        <p>No friendships yet. Open a <code>[ping]</code> issue and post <code>/link</code> to create the first edge.</p>
+        <p>还没有友谊。打开一个 <code>[ping]</code> issue 并输入 <code>/link</code>，画出第一条边。</p>
+      </div>
+    )}
+  </div>
+</Layout>

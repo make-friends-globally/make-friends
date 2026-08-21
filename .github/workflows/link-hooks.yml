@@ -1,0 +1,38 @@
+name: link-hooks
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  process:
+    if: startsWith(github.event.issue.title, '[ping] ')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Process /link and /unlink
+        run: node scripts/links.js
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_EVENT_PATH: ${{ github.event_path }}
+
+      - name: Commit link registry changes
+        run: |
+          git config user.name "make-friends bot"
+          git config user.email "actions@github.com"
+          git add links.json links-archive.json scripts/state/links-state.json
+          if git diff --cached --quiet; then
+            echo "no link registry changes"
+          else
+            git commit -m "make-friends: update links registry"
+            git push
+          fi

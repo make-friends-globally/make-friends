@@ -1,0 +1,35 @@
+name: "Ping: say hi"
+description: Introduce yourself to another member. This is a public conversation — no email needed.
+title: "[ping] <target-username>"
+labels: ["ping"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This is a **public** conversation — no email needed.
+        The `/link` command makes it official.
+  - type: input
+    id: source-profile
+    attributes:
+      label: Source profile
+      description: URL of your own make-friends/profile.json (the profile you are pinging from)
+      placeholder: https://raw.githubusercontent.com/you/make-friends-profile/main/make-friends/profile.json
+    validations:
+      required: true
+  - type: input
+    id: source-intent
+    attributes:
+      label: Source intent
+      description: Your lookingFor values, comma separated
+      placeholder: mentorship, collaboration
+  - type: textarea
+    id: why
+    attributes:
+      label: Why I'm saying hi
+      description: Optional — e.g. "We share an interest in Rust and you are in Shanghai too."
+      placeholder: Free text, optional
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        Reply in this thread, or post `/link` to establish a friendship (mutual confirmation required). Post `/unlink` to remove it.

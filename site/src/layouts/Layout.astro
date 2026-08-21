@@ -1,0 +1,47 @@
+---
+// Shared site shell: head, header, footer.
+import "../styles/global.css";
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const { title = "make-friends — a commit is an introduction", description = "A git-native social protocol: commit your profile, meet developers worldwide." } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="icon" type="image/svg+xml" href="/make-friends/favicon.svg" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container">
+        <a class="brand" href="/make-friends/">
+          make-friends <small>a commit is an introduction / commit 即自我介绍</small>
+        </a>
+        <nav>
+          <a class="btn btn-ghost" href="/make-friends/graph/">
+            graph / 关系图
+          </a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">
+        Your data lives in your repository. <a href="https://github.com/make-friends-globally/make-friends">make-friends</a>
+        / 你的数据存放在你的仓库中
+      </div>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,172 @@
+---
+// Member detail page (UX §2.2): full profile, friendship preview, Ping CTA,
+// fate-diff comparison anchored at #compare.
+import Layout from "../../layouts/Layout.astro";
+import { activeMembers, adjacency, fetchProfile, purposeColor } from "../../lib/data.js";
+
+export function getStaticPaths() {
+  return activeMembers().map((m) => ({ params: { username: m.username } }));
+}
+
+const { username } = Astro.params;
+const members = activeMembers();
+const member = members.find((m) => m.username === username);
+if (!member) {
+  return Astro.redirect("/make-friends/");
+}
+const profile = await fetchProfile(member.repo, member.profilePath);
+const friends = profile ? [...(adjacency().get(username) || [])].sort() : [];
+const issuesUrl = "https://github.com/make-friends-globally/make-friends/issues/new";
+const others = members.filter((m) => m.username !== username);
+---
+
+<Layout title={`${profile?.name || username} — make-friends`}>
+  <div class="container detail">
+    <div class="detail-header">
+      <img class="avatar" src={`https://github.com/${username}.png`} alt="" width="72" height="72" />
+      <div>
+        <h2>{profile?.name || username}</h2>
+        <div class="handle">@{username} · {profile?.city || "unknown location"} · {profile?.timezone || ""}</div>
+      </div>
+    </div>
+
+    {profile ? (
+      <>
+        {profile.bio && (
+          <div class="field">
+            <div class="field-label">Bio / 简介</div>
+            <p style="margin:0">{profile.bio}</p>
+          </div>
+        )}
+
+        <div class="field">
+          <div class="field-label">Looking for / 正在寻找</div>
+          <div class="chips">
+            {(profile.lookingFor || []).map((v) => (
+              <span class="purpose-chip" style={`background:${purposeColor(v)}`}>{v}</span>
+            ))}
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="field-label">Interests / 兴趣</div>
+          <div class="chips">
+            {(profile.interests || []).map((i) => <span class="interest-chip">{i}</span>)}
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="field-label">Speaks / 语言</div>
+          <div>{(profile.speaks || []).join(", ") || "—"}</div>
+        </div>
+
+        {profile.offer && (
+          <div class="field">
+            <div class="field-label">Offer / 可以提供</div>
+            <p style="margin:0">{profile.offer}</p>
+          </div>
+        )}
+
+        <div class="field">
+          <div class="field-label">Friends / 好友 ({friends.length})</div>
+          {friends.length > 0 ? (
+            <ul class="link-list" style="margin-top:0">
+              {friends.map((f) => <li><a href={`/make-friends/members/${f}/`}>@{f}</a></li>)}
+            </ul>
+          ) : (
+            <p style="margin:0;color:var(--text-dim)">No friendships yet — say hi first. / 还没有好友——先打个招呼吧。</p>
+          )}
+        </div>
+
+        <div class="cta-row" style="justify-content:flex-start">
+          <a class="btn btn-primary" href={`${issuesUrl}?template=ping.yml&title=${encodeURIComponent(`[ping] ${username}`)}`}>
+            Say hi / 打招呼
+          </a>
+          <a class="btn btn-ghost" href="#compare">Compare our fate / 缘分对比</a>
+        </div>
+
+        <div class="privacy-note">
+          This data is public and lives in <a href={`https://github.com/${member.repo}`}>{member.repo}</a>.
+          Deleting the profile there removes this page at the next render.
+          此数据公开，存放于 <a href={`https://github.com/${member.repo}`}>{member.repo}</a>。删除该仓库中的 profile，此页面将在下次渲染时移除。
+        </div>
+
+        <!-- fate diff / 缘分对比 -->
+        <section id="compare" style="margin-top:48px">
+          <h3>Compare our fate / 缘分对比</h3>
+          <p style="color:var(--text-dim);font-size:14px">
+            Pick another member to see what you share. / 选择另一位成员，看看你们的交集。
+          </p>
+          <select id="compare-select" class="filter-input" style="width:100%;max-width:360px">
+            <option value="">Choose a member / 选择成员…</option>
+            {others.map((o) => <option value={o.username}>@{o.username}</option>)}
+          </select>
+          <div id="compare-result" data-me={JSON.stringify({
+            interests: profile.interests || [],
+            speaks: profile.speaks || [],
+            lookingFor: profile.lookingFor || [],
+            city: profile.city || "",
+            timezone: profile.timezone || "",
+          })} data-others={JSON.stringify(
+            others.map((o) => ({ username: o.username, repo: o.repo, profilePath: o.profilePath }))
+          )}></div>
+        </section>
+      </>
+    ) : (
+      <div class="empty">
+        <p>Profile unavailable right now — it may be temporarily offline. / Profile 暂时不可用——可能临时离线。</p>
+        <a class="btn btn-ghost" href="/make-friends/">Back to the wall / 返回卡片墙</a>
+      </div>
+    )}
+  </div>
+</Layout>
+
+<script>
+  // Fate diff: compare interests/speaks/lookingFor/city/timezone with another
+  // member. Profiles of others are fetched lazily via raw.githubusercontent.
+  const sel = document.getElementById("compare-select");
+  const out = document.getElementById("compare-result");
+  const me = JSON.parse(out.dataset.me);
+  const others = JSON.parse(out.dataset.others);
+
+  function render(other) {
+    const shared = (a, b) => (a || []).filter((x) => b.includes(x));
+    const interests = shared(me.interests, other.interests);
+    const speaks = shared(me.speaks, other.speaks);
+    const lookingFor = shared(me.lookingFor, other.lookingFor);
+    const sameCity = me.city && other.city && me.city.toLowerCase() === other.city.toLowerCase();
+    const sameTz = me.timezone && other.timezone && me.timezone === other.timezone;
+
+    const rows = [
+      ["Interests / 共同兴趣", interests.join(", ") || "—"],
+      ["Languages / 共同语言", speaks.join(", ") || "—"],
+      ["Looking for / 共同意图", lookingFor.join(", ") || "—"],
+      ["Same city / 同城", sameCity ? "yes / 是" : "no / 否"],
+      ["Same timezone / 同时区", sameTz ? "yes / 是" : "no / 否"],
+    ];
+    const score = interests.length * 2 + speaks.length + lookingFor.length + (sameCity ? 2 : 0) + (sameTz ? 1 : 0);
+    out.innerHTML = `
+      <p style="margin-top:16px"><strong>Fate score / 缘分指数: ${score}</strong></p>
+      <table class="fate-table" style="border-collapse:collapse;width:100%;max-width:480px;font-size:14px">
+        ${rows.map(([k, v]) => `<tr style="border-bottom:1px solid var(--border)">
+          <td style="padding:8px 12px;color:var(--text-dim);width:45%">${k}</td>
+          <td style="padding:8px 12px">${v}</td></tr>`).join("")}
+      </table>`;
+  }
+
+  sel.addEventListener("change", async () => {
+    const u = sel.value;
+    if (!u) { out.innerHTML = ""; return; }
+    out.innerHTML = "<p style='margin-top:16px;color:var(--text-dim)'>Loading…</p>";
+    const other = others.find((o) => o.username === u);
+    try {
+      const res = await fetch(
+        `https://raw.githubusercontent.com/${other.repo}/HEAD/${other.profilePath || "make-friends/profile.json"}`
+      );
+      if (!res.ok) throw new Error("fetch failed");
+      render(JSON.parse(await res.text()));
+    } catch {
+      out.innerHTML = "<p style='margin-top:16px;color:var(--text-dim)'>Could not load that profile. / 无法加载该 profile。</p>";
+    }
+  });
+</script>

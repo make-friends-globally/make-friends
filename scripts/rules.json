@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "rules": [
+    {
+      "id": "min-bio-or-structured",
+      "kind": "presence",
+      "detail": "Reject profiles with zero structured fields beyond the required set (anti-placeholder)."
+    },
+    {
+      "id": "max-links",
+      "kind": "count",
+      "field": "projectLinks",
+      "max": 5,
+      "detail": "At most 5 external links per profile."
+    },
+    {
+      "id": "placeholder-text",
+      "kind": "regex",
+      "field": "bio",
+      "pattern": "^(lorem ipsum|tbd|todo|test|placeholder|asdf)$",
+      "flags": "i",
+      "detail": "Placeholder-only bios are rejected."
+    },
+    {
+      "id": "email-in-text",
+      "kind": "regex",
+      "field": "*",
+      "pattern": "[\\w.+-]+@[\\w-]+\\.[\\w.]+",
+      "detail": "Email addresses are rejected anywhere in the profile (privacy baseline)."
+    },
+    {
+      "id": "phone-in-text",
+      "kind": "regex",
+      "field": "*",
+      "pattern": "\\+?\\d{8,15}",
+      "detail": "Phone numbers are rejected anywhere in the profile (privacy baseline)."
+    },
+    {
+      "id": "domain-blocklist",
+      "kind": "url",
+      "field": "projectLinks",
+      "blocklist": ["spam.example", "example.invalid"],
+      "detail": "Blocklisted domains are rejected in project links."
+    },
+    {
+      "id": "duplicate-content",
+      "kind": "hash",
+      "field": "*",
+      "detail": "Content hash collision with an existing member is flagged (checked by the crawler, not locally)."
+    }
+  ]
+}

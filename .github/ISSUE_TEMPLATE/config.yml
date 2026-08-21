@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Join as a member
+    url: https://github.com/make-friends-globally/make-friends/blob/main/requests/new-member.md
+    about: Add your profile to the index — follow the steps in requests/new-member.md
+  - name: Report abuse
+    url: https://github.com/make-friends-globally/make-friends/issues/new
+    about: Report spam or abuse — the maintainer will review and may add a denylist entry

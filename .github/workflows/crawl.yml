@@ -1,0 +1,47 @@
+name: crawl
+
+on:
+  schedule:
+    - cron: "30 0 * * 1" # Monday 00:30 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  crawl:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Crawl member profiles
+        run: node scripts/crawl.js
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Commit index changes
+        run: |
+          git config user.name "make-friends bot"
+          git config user.email "actions@github.com"
+          git add index.json
+          if git diff --cached --quiet; then
+            echo "no index changes"
+          else
+            git commit -m "make-friends: refresh index.json (crawl)"
+            git push
+          fi
+
+      - name: Open validation report issue
+        run: |
+          node scripts/report-validation.js > /tmp/validation-report.md
+          if grep -q "Invalid entries: 0" /tmp/validation-report.md && grep -q "Profiles removed" /tmp/validation-report.md; then
+            echo "no regressions to report"
+          else
+            gh issue create --title "[validation] crawl report" --body-file /tmp/validation-report.md
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
