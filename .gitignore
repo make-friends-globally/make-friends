@@ -1,0 +1,5 @@
+# Private scout output — personal candidate lists must not be committed
+reports/
+
+.DS_Store
+node_modules/

@@ -1,0 +1,12 @@
+{
+  "radarVersion": 1,
+  "owner": "AllenGaller",
+  "interests": ["sre", "llm-agents", "ai-copilot", "observability", "developer-tools", "corpus-engineering"],
+  "languages": ["python", "typescript"],
+  "speaks": ["zh", "en"],
+  "location": "UTC+8",
+  "lookingFor": ["collaborator", "mentor", "chat"],
+  "seedTopics": ["sre", "ai-agents", "llmops", "observability", "developer-experience"],
+  "avoidUsernames": [],
+  "notes": "Edit this file to retune the radar. Used by scripts/radar.js; nothing here is ever sent automatically."
+}
