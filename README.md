@@ -29,9 +29,9 @@ Delete your profile and you are gone at the next crawl — no central data to re
 
 ## Join in 5 minutes / 五分钟加入
 
-1. **Commit your intro.** Create `make-friends/profile.json` at the root of any repo you own. Start from [profile.schema.json](profile.schema.json) or the example in [requests/new-member.md](requests/new-member.md). 在你拥有的任意仓库根目录创建 `make-friends/profile.json`（格式见 [profile.schema.json](profile.schema.json) 与 [requests/new-member.md](requests/new-member.md)）。
+1. **Commit your intro.** Fastest path: [profile-template/](profile-template/README.md) — 3 browser steps, zero command lines (create the repo → edit `make-friends/profile.json` → commit). Or write the JSON by hand following [profile.schema.json](profile.schema.json). 最快路径：按 [profile-template/](profile-template/README.md) 的三步浏览器操作（零命令行），或按 [profile.schema.json](profile.schema.json) 手写 JSON。
 2. **Add yourself to the index.** Open a PR titled `[index] add <username>` that adds your entry to [index.json](index.json) — or open an issue titled `[index] add <username>` with your repo URL. A maintainer verifies ownership and approves once. 提交标题为 `[index] add <username>` 的 PR 将你的条目加入 [index.json](index.json)，或发同名 issue 附上仓库 URL。维护者核验归属后一次性审批。
-3. **Appear on the wall.** The crawler runs every Monday 00:30 UTC; you show up within 7 days. 抓取器每周一 00:30 UTC 运行，你将在 7 天内出现在卡片墙上。
+3. **Appear on the wall.** The crawler runs daily at 00:30 UTC; you show up within 24 hours. 抓取器每天 00:30 UTC 运行，你将在 24 小时内出现在卡片墙上。
 
 Validate locally first / 先本地校验:
 
@@ -74,7 +74,7 @@ member repo            central repo (this one)
 ┌────────────────┐     ┌─────────────────────────────┐
 │ profile.json   │ ──▶ │ index.json  (pointer only)  │
 │ (your data)    │     │ links.json  (friendships)   │
-└────────────────┘     │ crawl.yml  → weekly refresh │
+└────────────────┘     │ crawl.yml  → daily refresh │
                        │ validate-pr.yml → entry gate│
                        │ link-hooks.yml → /link API  │
                        └─────────────────────────────┘

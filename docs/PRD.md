@@ -129,7 +129,7 @@
 
 **Acceptance criteria / 验收标准:**
 - Given the card wall is published, when I open the site, then I can filter by `lookingFor`, `city`, `speaks`, and `interests`.
-- Given a member's profile is in the index, when the profile is updated in the member's repository, then the wall reflects the change within the next scheduled crawl (≤ 7 days).
+- Given a member's profile is in the index, when the profile is updated in the member's repository, then the wall reflects the change within the next scheduled crawl (≤ 24 hours).
 - Given the wall contains 10,000 members, when I load the homepage, then it renders in under 3 seconds (static pre-rendering, lazy-loaded cards).
 
 #### FR-03 Ping (Greeting) / Ping（打招呼）

@@ -45,7 +45,7 @@ flowchart LR
 | Discover / 发现 | Curiosity / 好奇 | The README's gesture table is the hook; badges on members' profiles are the viral loop |
 | Onboard / 注册 | Agency, not friction / 掌控感 | Under 5 minutes; AI-guided for writers' block; every step is editable |
 | Own / 归属 | Ownership / 归属感 | "Your data lives in your repository" is stated literally at the end of onboarding |
-| Appear / 出现 | Anticipation / 期待 | "You will appear on the wall at the next crawl (within 7 days)" — concrete expectation setting |
+| Appear / 出现 | Anticipation / 期待 | "You will appear on the wall at the next crawl (within 24 hours)" — concrete expectation setting |
 | Interact / 互动 | Serendipity / 惊喜 | Low-commitment Ping; AI icebreaker; mystery friend for the shy |
 | Ritual / 仪式 | Belonging / 归属感 | The Link confirmation message uses merge language: "friendship merged" |
 
@@ -180,7 +180,7 @@ $ npx make-friends introduce
 
 ✓ Generated make-friends/profile.json (validated against schema v1.0)
 ✓ PR opened: https://github.com/alice-dev/make-friends-profile/pull/1
-→ Your data lives in YOUR repository. You will appear on the wall at the next crawl (within 7 days).
+→ Your data lives in YOUR repository. You will appear on the wall at the next crawl (within 24 hours).
 ```
 
 **English:** Design notes: the publicness notice is the FIRST question; defaults are smart (timezone from local system); multi-select uses arrow keys; the final message restates ownership and sets crawl expectations.

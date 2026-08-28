@@ -36,7 +36,7 @@ flowchart LR
         LINKS["links.json (generated)"]
         DENY["denylist.json"]
         SCH["profile.schema.json"]
-        WF1["Workflow: crawl.yml (weekly)"]
+        WF1["Workflow: crawl.yml (daily)"]
         WF2["Workflow: validate-pr.yml (on PR)"]
         WF3["Workflow: link-hooks.yml (issue_comment)"]
         WF4["Workflow: render.yml (on data change)"]
@@ -83,7 +83,7 @@ flowchart LR
 **中文:** 数据流摘要（全部自动化）：
 
 1. Members own `make-friends/profile.json` in their repos (Protocol-SPEC §2).
-2. `crawl.yml` (weekly) fetches and validates all member profiles, regenerating `index.json`.
+2. `crawl.yml` (daily) fetches and validates all member profiles, regenerating `index.json`.
 3. `render.yml` (on data change) builds the static site and deploys to `gh-pages`.
 4. `link-hooks.yml` (on issue comments) processes `/link` and `/unlink`, maintaining `links.json`.
 5. `digest.yml` (weekly) posts the digest issue; `ai-batch.yml` (weekly) computes embeddings/translations.
@@ -156,11 +156,11 @@ make-friends-tools/
 
 **中文:** 工作流权限遵循最小权限原则：只读作业使用 `contents: read`；链接钩子使用 `issues: write`；仅在渲染作业中使用 `contents: write` + `pages`。具有仓库写权限的 token 存储在 Actions secrets 中（绝不入库）。
 
-### 3.1 crawl.yml — Weekly Index Crawl / 每周索引抓取
+### 3.1 crawl.yml — Daily Index Crawl / 每日索引抓取
 
-**English:** Scheduled weekly (e.g., Monday 00:30 UTC), plus manual dispatch. Steps:
+**English:** Scheduled daily (e.g., 00:30 UTC), plus manual dispatch. Steps:
 
-**中文:** 每周定时（如周一 00:30 UTC），支持手动触发。步骤：
+**中文:** 每天定时（如 00:30 UTC），支持手动触发。步骤：
 
 1. Load `index.json` + `denylist.json`.
 2. For each member: fetch `profilePath` via Contents API (conditional requests; 404 → mark removed, 403 → skip with note).
@@ -314,9 +314,9 @@ make-friends-tools/
 
 ### 7.3 Rate Limiting & Human Review / 速率限制与人工审核
 
-**English:** (1) New index entries require human approval (one-time gate). (2) A single member's profile may be updated at most once per crawl cycle (7 days) — enforced by the crawler's `updatedAt` diffing; urgent fixes via issue request. (3) Denylisted members are excluded from all rendering, recommendation, and digest paths. (4) Ping issues are rate-limited per sender (e.g., ≤ 3 open Pings per day) via a lint check in link-hooks.yml.
+**English:** (1) New index entries require human approval (one-time gate). (2) A single member's profile may be updated at most once per crawl cycle (1 day) — enforced by the crawler's `updatedAt` diffing; urgent fixes via issue request. (3) Denylisted members are excluded from all rendering, recommendation, and digest paths. (4) Ping issues are rate-limited per sender (e.g., ≤ 3 open Pings per day) via a lint check in link-hooks.yml.
 
-**中文:** (1) 新索引条目需要人工批准（一次性门槛）。(2) 单个成员的 profile 每抓取周期（7 天）至多更新一次——由抓取器的 `updatedAt` 差异比较执行；紧急修复通过 issue 申请。(3) 被拉黑成员从所有渲染、推荐与 Digest 路径中排除。(4) Ping issue 按发送者限速（如每天 ≤ 3 个未关闭 Ping），由 link-hooks.yml 中的 lint 检查执行。
+**中文:** (1) 新索引条目需要人工批准（一次性门槛）。(2) 单个成员的 profile 每抓取周期（1 天）至多更新一次——由抓取器的 `updatedAt` 差异比较执行；紧急修复通过 issue 申请。(3) 被拉黑成员从所有渲染、推荐与 Digest 路径中排除。(4) Ping issue 按发送者限速（如每天 ≤ 3 个未关闭 Ping），由 link-hooks.yml 中的 lint 检查执行。
 
 ---
 

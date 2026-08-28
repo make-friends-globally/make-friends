@@ -92,11 +92,11 @@ maintainer will add the entry for you.
 
 ## Step 3 — Appear on the wall / 出现在卡片墙上
 
-The crawler runs every Monday 00:30 UTC. You will appear on the card wall
-within 7 days. While you wait: ping someone! Open an issue with title
+The crawler runs daily at 00:30 UTC. You will appear on the card wall
+within 24 hours. While you wait: ping someone! Open an issue with title
 `[ping] <username>` (use the "Ping: say hi" template).
 
-抓取器每周一 00:30 UTC 运行。你将在 7 天内出现在卡片墙上。
+抓取器每天 00:30 UTC 运行。你将在 24 小时内出现在卡片墙上。
 等待期间可以先 Ping 别人！创建标题为 `[ping] <username>` 的 issue
 （使用 "Ping: say hi" 模板）。
 

@@ -2,7 +2,7 @@ name: crawl
 
 on:
   schedule:
-    - cron: "30 0 * * 1" # Monday 00:30 UTC
+    - cron: "30 0 * * *" # daily 00:30 UTC
   workflow_dispatch:
 
 permissions:
@@ -38,8 +38,8 @@ jobs:
       - name: Open validation report issue
         run: |
           node scripts/report-validation.js > /tmp/validation-report.md
-          if grep -q "Invalid entries: 0" /tmp/validation-report.md && grep -q "Profiles removed" /tmp/validation-report.md; then
-            echo "no regressions to report"
+          if grep -q "Invalid entries: 0" /tmp/validation-report.md; then
+            echo "no profiles need fixes"
           else
             gh issue create --title "[validation] crawl report" --body-file /tmp/validation-report.md
           fi

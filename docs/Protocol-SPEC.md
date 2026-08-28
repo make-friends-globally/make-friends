@@ -262,9 +262,9 @@
 
 ### 3.4 Crawling Rules / 抓取规则
 
-**English:** The crawl (weekly schedule, Architecture §3.1) MUST:
+**English:** The crawl (daily schedule, Architecture §3.1) MUST:
 
-**中文:** 抓取（每周定时，见 Architecture §3.1）必须：
+**中文:** 抓取（每天定时，见 Architecture §3.1）必须：
 
 1. Fetch `profilePath` from each member repo via the GitHub Contents API (raw URL fallback).
 2. Validate against `profile.schema.json`; record `valid` and `lastValidationError`.

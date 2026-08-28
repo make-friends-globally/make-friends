@@ -1,0 +1,12 @@
+{
+  "protocolVersion": "1.0",
+  "name": "Your Display Name",
+  "bio": "One or two lines about yourself.",
+  "timezone": "UTC+8",
+  "city": "Shanghai",
+  "speaks": ["zh", "en"],
+  "lookingFor": ["chat", "collaborator"],
+  "offer": ["code-review", "coffee"],
+  "interests": ["open-source", "coffee"],
+  "bestTimeToReach": "evening"
+}
