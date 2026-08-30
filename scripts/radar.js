@@ -20,7 +20,7 @@
  *   node scripts/radar.js                 # write both report files
  *   GITHUB_TOKEN=... node scripts/radar.js  # recommended: 5000 req/h vs 60/h
  *
- * Request budget: ~26 API calls per run (fits the unauthenticated 60/h limit).
+ * Request budget: ~26-34 API calls per run (fits the unauthenticated 60/h limit).
  */
 
 "use strict";
@@ -37,10 +37,17 @@ const REPOS_PER_TOPIC = 2;
 const REPOS_FOR_CONTRIBUTORS = 5;
 const MAX_CANDIDATES = 8;
 const CANDIDATES_DETAIL_BUDGET = 8; // users + events calls = 2x this
+const COMMIT_LOOKUP_BUDGET = 8;     // per-run cap on head-commit fetches (see scoreCandidate)
 
 const CHINA_HINTS = ["china", "shanghai", "beijing", "shenzhen", "hangzhou", "chengdu", "guangzhou", "wuhan", "nanjing", "suzhou", "xi'an", "utc+8"];
 
 let apiCalls = 0;
+
+// GitHub no longer returns commit messages in public PushEvent payloads, so
+// subjects are recovered with one /repos/{repo}/commits/{head} call per pushed
+// repo. Cached across candidates (several often push to the same repo) to
+// protect the rate-limit budget.
+const commitSubjectCache = new Map(); // head sha -> commit subject
 
 async function gh(pathname, token) {
   apiCalls += 1;
@@ -151,6 +158,7 @@ async function scoreCandidate(candidate, profile, interests, token) {
   const events = (await gh(`/users/${candidate.login}/events/public?per_page=15`, token)) || [];
 
   const pushedRepos = new Map(); // repo -> latest commit subject
+  const pushHeads = new Map(); // repo -> { full, head, at } of the most recent push
   const hourHist = new Array(24).fill(0);
   let recentPush = false;
   let lastPushAt = null;
@@ -162,10 +170,31 @@ async function scoreCandidate(candidate, profile, interests, token) {
       recentPush = true;
       if (!lastPushAt || at > lastPushAt) lastPushAt = at;
       hourHist[at.getUTCHours()] += 1;
-      const repoName = (ev.repo?.name || "").split("/").pop();
+      const full = ev.repo?.name || "";
+      const repoName = full.split("/").pop();
+      if (!repoName) continue;
+      const prev = pushHeads.get(repoName);
+      if (!prev || at > prev.at) pushHeads.set(repoName, { full, head: ev.payload?.head, at });
       const subject = ev.payload?.commits?.slice(-1)[0]?.message?.split("\n")[0] || "";
-      if (repoName && subject && !pushedRepos.has(repoName)) pushedRepos.set(repoName, subject);
+      if (subject && !pushedRepos.has(repoName)) pushedRepos.set(repoName, subject);
     }
+  }
+  // Recover commit subjects that trimmed PushEvent payloads no longer carry.
+  let commitLookups = 0;
+  const headsByRecency = [...pushHeads.entries()].sort((a, b) => b[1].at - a[1].at);
+  for (const [repoName, info] of headsByRecency) {
+    if (!info.full || !info.head || pushedRepos.has(repoName)) continue;
+    let subject;
+    if (commitSubjectCache.has(info.head)) {
+      subject = commitSubjectCache.get(info.head);
+    } else {
+      if (commitLookups >= COMMIT_LOOKUP_BUDGET) continue;
+      commitLookups += 1;
+      const c = await gh(`/repos/${info.full}/commits/${info.head}`, token).catch(() => null);
+      subject = c?.commit?.message?.split("\n")[0] || "";
+      commitSubjectCache.set(info.head, subject);
+    }
+    if (subject) pushedRepos.set(repoName, subject);
   }
   const window = activityWindow(hourHist);
 
