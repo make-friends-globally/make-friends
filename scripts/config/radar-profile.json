@@ -7,6 +7,6 @@
   "location": "UTC+8",
   "lookingFor": ["collaborator", "mentor", "chat"],
   "seedTopics": ["sre", "ai-agents", "llmops", "observability", "developer-experience"],
-  "avoidUsernames": [],
+  "avoidUsernames": ["codex", "claude"],
   "notes": "Edit this file to retune the radar. Used by scripts/radar.js; nothing here is ever sent automatically."
 }
